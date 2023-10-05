@@ -58,6 +58,20 @@ public class Producto
         }
     }
 
+    private string categoria;
+
+    public string Categoria 
+    {
+        get
+        {
+            return this.categoria;
+        }
+        set 
+        {
+            this.categoria = value;
+        }
+    }
+
     private TipoProducto tipoproducto; 
 
     public TipoProducto TipoProducto

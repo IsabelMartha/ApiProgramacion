@@ -44,4 +44,18 @@ public class TipoProducto
             this.price = value;
         }
     }
+
+    private string categoria;
+
+    public string Categoria 
+    {
+        get
+        {
+            return this.categoria;
+        }
+        set 
+        {
+            this.categoria = value;
+        }
+    }
 }

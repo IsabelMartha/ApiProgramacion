@@ -19,11 +19,17 @@ public class ProductoController : ControllerBase
         
             List<Producto> productos = new List<Producto>();
 
+            TipoProducto categoria = new TipoProducto
+        {
+            Categoria = "Perro"
+        };
+
             productos.Add(new Producto 
             {
                 Title = "Piloto",
                 Description = "Proteje a tu perro con la mejor capa",
                 Price = 3000
+                
             });
 
             return productos;
