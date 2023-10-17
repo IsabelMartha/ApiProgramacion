@@ -1,7 +1,23 @@
 namespace api_programacion_3.entities.productos;
 
 public class Producto 
-{
+{   
+    
+    private long id;
+
+    public long Id 
+    {
+        get 
+        {
+            return this.id;
+        }
+        set
+        {
+            this.id = value;
+        }
+    }
+
+
     private string img;
 
     public string Img 
