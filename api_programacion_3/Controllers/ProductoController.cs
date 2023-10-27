@@ -26,8 +26,10 @@ public class ProductoController : ControllerBase
 
             productos.Add(new Producto 
             {   
-                Id = 1
+                Id = 1,
                 Title = "Piloto",
+                Img = "",
+                Categoria = "",
                 Description = "Proteje a tu perro con la mejor capa",
                 Price = 3000
                 

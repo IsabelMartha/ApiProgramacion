@@ -1,4 +1,9 @@
+using api_programacion_3.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
 // Add services to the container.
 
@@ -7,14 +12,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:5502")
-                            .AllowAnyMethod()
-                            .AllowAnyHeader());
+builder.Services.AddCors(options => {
+    options.AddPolicy("api-cors", policy => {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
 
+builder.Services.AddDbContext<DataContext>(options => {
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConection"));
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,6 +38,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors("CorsPolicy");
+app.UseCors("api-cors");
 
 app.Run();

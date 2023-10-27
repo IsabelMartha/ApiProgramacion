@@ -18,7 +18,7 @@ public class Producto
     }
 
 
-    private string img;
+    private string img = "";
 
     public string Img 
     {
@@ -32,7 +32,7 @@ public class Producto
         }
     }
 
-    private string title;
+    private string title = "";
 
     public string Title
     {
@@ -46,7 +46,7 @@ public class Producto
         }
     }
     
-    private string description;
+    private string description = "";
 
     public string Description 
     {
@@ -74,7 +74,7 @@ public class Producto
         }
     }
 
-    private string categoria;
+    private string categoria = "";
 
     public string Categoria 
     {
@@ -88,9 +88,9 @@ public class Producto
         }
     }
 
-    private TipoProducto tipoproducto; 
+    private TipoProducto? tipoproducto ; 
 
-    public TipoProducto TipoProducto
+    public TipoProducto? TipoProducto
     {
         get 
         {
