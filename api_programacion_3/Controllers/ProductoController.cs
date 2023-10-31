@@ -1,40 +1,51 @@
-using Microsoft.AspNetCore.Mvc;
+using api_programacion_3.Data;
 using api_programacion_3.entities.productos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 namespace api_programacion_3.Controllers;
 
 [ApiController]
 [Route("[controller]")]
 public class ProductoController : ControllerBase
 {
-    private readonly ILogger<ProductoController> _logger;
+    private readonly DataContext dataContext;
 
-    public ProductoController(ILogger<ProductoController> logger)
+    public ProductoController(DataContext dataContext)
     {
-        _logger = logger;
+        this.dataContext = dataContext;
     }
 
-    [HttpGet(Name = "GetProducto")]
-    public IEnumerable<Producto> Get()
+    [HttpGet("{idType}")]
+    public async Task<ActionResult<List<Producto>>> Get(long idType)
     {
+        List<Producto> productos = new List<Producto>();
         
-            List<Producto> productos = new List<Producto>();
-
-            TipoProducto categoria = new TipoProducto
+        if(this.dataContext != null && this.dataContext.Produtos != null && this.dataContext.TipoProducto != null)
         {
-            Categoria = "Perro"
-        };
+            TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(idType);
+            productos = 
+                await this.dataContext.Produtos
+                    .Where(producto => producto.TipoProducto == tipoProducto)
+                    .ToListAsync();
+        }
 
-            productos.Add(new Producto 
-            {   
-                Id = 1,
-                Title = "Piloto",
-                Img = "",
-                Categoria = "",
-                Description = "Proteje a tu perro con la mejor capa",
-                Price = 3000
-                
-            });
+        return Ok(productos);
+    }
 
-            return productos;
+    [HttpPost]
+    public async Task<ActionResult<Producto>> Post([FromBody] Producto producto)
+    {
+        if(this.dataContext != null && this.dataContext.Produtos != null)
+        {
+            await this.dataContext.Produtos.AddAsync(producto);
+
+            await this.dataContext.SaveChangesAsync();
+        }
+
+        return Ok(producto);
+    }
+
+    
 }
-}
+    
