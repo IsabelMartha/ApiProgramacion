@@ -3,6 +3,7 @@ using api_programacion_3.entities.productos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace api_programacion_3.Controllers;
 
 [ApiController]
@@ -17,7 +18,7 @@ public class ProductoController : ControllerBase
     }
 
     [HttpGet("{idType}")]
-    public async Task<ActionResult<List<Producto>>> Get(long idType)
+    public  async Task<ActionResult<List<Producto>>> Get(long idType)
     {
         List<Producto> productos = new List<Producto>();
         
