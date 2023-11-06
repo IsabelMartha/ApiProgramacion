@@ -17,6 +17,23 @@ public class ProductoController : ControllerBase
         this.dataContext = dataContext;
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Producto>> GetProducto(long id)
+    {
+        if(this.dataContext != null && this.dataContext.Produtos != null)
+        {
+            Producto? dbProducto = await this.dataContext.Produtos.FindAsync(id);
+            if(dbProducto == null)
+            {
+                return NotFound("Producto no encontrado");
+            }
+
+            return Ok(dbProducto);
+        }
+
+        return NotFound();
+    }
+
     [HttpGet("{idType}")]
     public  async Task<ActionResult<List<Producto>>> Get(long idType)
     {
@@ -45,6 +62,52 @@ public class ProductoController : ControllerBase
         }
 
         return Ok(producto);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Producto>> Put(
+        [FromRoute]long id, 
+        [FromBody] Producto producto)
+    {
+        if(this.dataContext != null && this.dataContext.Produtos != null)
+        {
+            Producto? dbProducto = await this.dataContext.Produtos.FindAsync(id);
+            if(dbProducto == null)
+            {
+                return NotFound("Producto no encontrado");
+            }
+
+            dbProducto.Title = producto.Title;
+            dbProducto.Description = producto.Description;
+            dbProducto.Price = producto.Price;
+            dbProducto.Img = producto.Img;
+            dbProducto.TipoProducto = producto.TipoProducto;
+
+            await this.dataContext.SaveChangesAsync();
+
+            return Ok(dbProducto);
+        }
+
+        return BadRequest("Error");
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(long id)
+    {
+        if(this.dataContext != null && this.dataContext.Produtos != null)
+        {
+            Producto? dbProducto = await this.dataContext.Produtos.FindAsync(id);
+            if(dbProducto == null)
+            {
+                return NotFound("Producto no encontrado");
+            }
+
+            dataContext.Produtos.Remove(dbProducto);
+
+            await this.dataContext.SaveChangesAsync();
+        }
+
+        return Ok();
     }
 
     
