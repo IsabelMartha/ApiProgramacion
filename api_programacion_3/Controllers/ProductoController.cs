@@ -17,22 +17,6 @@ public class ProductoController : ControllerBase
         this.dataContext = dataContext;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Producto>> GetProducto(long id)
-    {
-        if(this.dataContext != null && this.dataContext.Produtos != null)
-        {
-            Producto? dbProducto = await this.dataContext.Produtos.FindAsync(id);
-            if(dbProducto == null)
-            {
-                return NotFound("Producto no encontrado");
-            }
-
-            return Ok(dbProducto);
-        }
-
-        return NotFound();
-    }
 
     [HttpGet("{idType}")]
     public  async Task<ActionResult<List<Producto>>> Get(long idType)
