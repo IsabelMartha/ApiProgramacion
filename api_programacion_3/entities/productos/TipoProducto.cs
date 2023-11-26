@@ -17,4 +17,8 @@ public class TipoProducto
         }
     }
 
+    public string Description { get; set; } = "";
+
+    
+
 }

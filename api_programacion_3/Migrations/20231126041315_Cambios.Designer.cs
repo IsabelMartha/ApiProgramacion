@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api_programacion_3.Data;
 
@@ -10,36 +11,15 @@ using api_programacion_3.Data;
 namespace api_programacion_3.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231126041315_Cambios")]
+    partial class Cambios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("api_programacion_3.entities.Commons.Image", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("UploadDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Images");
-                });
 
             modelBuilder.Entity("api_programacion_3.entities.productos.Producto", b =>
                 {
@@ -47,12 +27,17 @@ namespace api_programacion_3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long?>("ImageId")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Img")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<long>("Price")
                         .HasColumnType("bigint");
@@ -66,8 +51,6 @@ namespace api_programacion_3.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageId");
-
                     b.HasIndex("TipoProductoId");
 
                     b.ToTable("Produtos");
@@ -79,10 +62,6 @@ namespace api_programacion_3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.HasKey("Id");
 
                     b.ToTable("TipoProducto");
@@ -90,15 +69,9 @@ namespace api_programacion_3.Migrations
 
             modelBuilder.Entity("api_programacion_3.entities.productos.Producto", b =>
                 {
-                    b.HasOne("api_programacion_3.entities.Commons.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
-
                     b.HasOne("api_programacion_3.entities.productos.TipoProducto", "TipoProducto")
                         .WithMany()
                         .HasForeignKey("TipoProductoId");
-
-                    b.Navigation("Image");
 
                     b.Navigation("TipoProducto");
                 });
