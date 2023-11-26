@@ -36,8 +36,6 @@ public class ProductoController : ControllerBase
     [HttpGet("type/{id}")]
     public  async Task<ActionResult<List<Producto>>> Get(long id)
     {
-        List<Producto> produtos = new List<Producto>();
-        
     
             TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(id);
             produtos = 
