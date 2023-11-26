@@ -21,8 +21,9 @@ public class ProductoController : ControllerBase
     [HttpGet("{idType}")]
     public  async Task<ActionResult<List<Producto>>> Get(long idType)
     {
-        List<Producto> productos = new List<Producto>();
+        List<Producto> produtos = new List<Producto>();
         
+    
         if(this.dataContext != null && this.dataContext.Produtos != null && this.dataContext.TipoProducto != null)
         {
             TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(idType);
