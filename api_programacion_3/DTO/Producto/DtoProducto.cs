@@ -10,6 +10,8 @@ public class DtoProducto
 
     public long Price { get; set; } = 0;
 
+    public string Url { get; set;} = "";
+
     public long IdTipoProducto { get; set; }
 
     public IFormFile? File {get; set;}

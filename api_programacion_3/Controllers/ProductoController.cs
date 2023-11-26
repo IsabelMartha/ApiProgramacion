@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using api_programacion_3.Data;
 using System.Net;
 using api_programacion_3.entities.productos;
+using api_programacion_3.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api_programacion_3.DTO.Producto;
@@ -34,21 +35,60 @@ public class ProductoController : ControllerBase
    }
 
     [HttpGet("type/{id}")]
-    public  async Task<ActionResult<List<Producto>>> Get(long id)
+    public  async Task<ActionResult<List<DtoProducto>>> Get(
+        [FromRoute] long id, 
+        [FromQuery] DTOList dtoList)
     {
-    
+          
             TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(id);
-            produtos = 
+
+            var  query = this.dataContext.Produtos.AsQueryable();
+
+            if(!string.IsNullOrEmpty(dtoList.Query))
+            {
+                query = query.Where(producto => producto.Title.Contains(dtoList.Query));
+            }
+
+            if(!string.IsNullOrEmpty(dtoList.OrderBy))
+            {
+                query = query.OrderBy(producto => producto.Title);
+            }
+            int page = dtoList.Page != null ? dtoList.Page.Value : 1; 
+            int pageSize = dtoList.PageSize != null ? dtoList.PageSize.Value : 10;
+
+            var produtos = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+            /*List<Producto>  produtos = 
                 await this.dataContext.Produtos
+                    .Include(producto => producto.Image)
+                    .Include(producto => producto.TipoProducto)
                     .Where(producto => producto.TipoProducto == tipoProducto)
-                    .ToListAsync();
+                    .ToListAsync();*/
+
+            List<DtoProducto> dtos = new List<DtoProducto>();
+
+            foreach(Producto producto in produtos)
+            {
+                dtos.Add(new DtoProducto 
+                {
+                    Description = producto.Description,
+                    Id = producto.Id,
+                    Title = producto.Title,
+                    Price = producto.Price,
+                    Url = "/Image/" + (producto.Image != null ? producto.Image.Id.ToString() : ""),
+
+                });
+            }
         
 
-        return Ok(produtos);
+        return Ok(dtos);
     }
 
     [HttpPost]
-    public async Task<ActionResult<Producto>> Post(
+    public async Task<ActionResult> Post(
         [FromForm] DtoProducto dtoProducto)
     {
         if (dtoProducto.File == null)
@@ -153,6 +193,8 @@ public class ProductoController : ControllerBase
         return Ok();
     }
 
-    
+    public class DtoList
+    {
+    }
 }
     
