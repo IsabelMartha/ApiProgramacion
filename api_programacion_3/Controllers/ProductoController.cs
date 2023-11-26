@@ -4,6 +4,7 @@ using System.Net;
 using api_programacion_3.entities.productos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using api_programacion_3.DTO.Producto;
 namespace api_programacion_3.Controllers;
 
 [ApiController]
@@ -49,18 +50,66 @@ public class ProductoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Producto>> Post([FromBody] Producto producto)
+    public async Task<ActionResult<Producto>> Post(
+        [FromForm] DtoProducto dtoProducto)
     {
-        
-            await this.dataContext.Produtos.AddAsync(producto);
+        if (dtoProducto.File == null)
+        {
+            return BadRequest("Archivo no valido");
+        }
 
-            await this.dataContext.SaveChangesAsync();
+        string path = await SaveFile(dtoProducto);
 
+        Producto producto = await CreateProducto(dtoProducto, path);
 
-        return Ok(producto);
+        await SaveProductoDB(producto);
+
+        return Ok();
     }
 
-[HttpPut("{id}")]
+    private async Task SaveProductoDB(Producto producto)
+    {
+        await this.dataContext.Produtos.AddAsync(producto);
+
+        await this.dataContext.SaveChangesAsync();
+    }
+
+    private async Task<Producto> CreateProducto(DtoProducto dtoProducto, string path)
+    {   TipoProducto? tipoProducto = 
+    await this.dataContext
+    .TipoProducto.FindAsync(dtoProducto.IdTipoProducto);
+        return new Producto
+        {
+            Description = dtoProducto.Description,
+            Image = new entities.Commons.Image
+            {
+                Path = path,
+                UploadDate = DateTime.Now,
+                Url = ""
+            },
+            Title = dtoProducto.Title,
+            Price = dtoProducto.Price,
+            TipoProducto = tipoProducto
+
+        };
+    }
+
+    private static async Task<string> SaveFile(DtoProducto dtoProducto)
+    {
+        string path = Path.Combine
+                (Directory.GetCurrentDirectory(),
+                "Archivos",
+                dtoProducto.File.FileName);
+
+        using (var stream = new FileStream(path, FileMode.Create))
+        {
+            await dtoProducto.File.CopyToAsync(stream);
+        }
+
+        return path;
+    }
+
+    [HttpPut("{id}")]
     public async Task<ActionResult<Producto>> Put(
         [FromRoute]long id, 
         [FromBody] Producto producto)
