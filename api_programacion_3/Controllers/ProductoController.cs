@@ -1,11 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
-using api_programacion_3.Data;
 using System.Net;
+using api_programacion_3.Data;
+using api_programacion_3.DTO.Producto;
 using api_programacion_3.entities.productos;
 using api_programacion_3.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using api_programacion_3.DTO.Producto;
+
 namespace api_programacion_3.Controllers;
 
 [ApiController]
@@ -53,9 +54,10 @@ public class ProductoController : ControllerBase
         {
             query = query.OrderBy(producto => producto.Title);
         }
-
         int page = dtoList.Page != null ? dtoList.Page.Value : 1; 
         int pageSize = dtoList.PageSize != null ? dtoList.PageSize.Value : 10;
+
+        var count = await query.CountAsync();
 
         var produtos = await query
             .Include(product => product.Image)
@@ -63,7 +65,7 @@ public class ProductoController : ControllerBase
             .Take(pageSize)
             .ToListAsync();
 
-        List<DtoProducto> dtos = new List<DtoProducto>();
+        List<Object> dtos = new List<Object>();
 
         foreach(Producto producto in produtos)
         {
@@ -73,12 +75,26 @@ public class ProductoController : ControllerBase
                 Id = producto.Id,
                 Title = producto.Title,
                 Price = producto.Price,
-                Url =  "/Image/" + (producto.Image != null ? producto.Image.Id.ToString() : "")
+                Url = "/Image/" + (producto.Image != null ? producto.Image.Id.ToString() : "")
             });
         }
-        
-        return Ok(dtos);
+               
+        int pageCount = (count / pageSize) + 1;
+
+        return Ok(new DtoListProducto 
+        {
+            HasNextPage = (page + 1) <= pageCount,
+            HasPrevPage = page > 1,
+            List = dtos,
+            NextPage = (page + 1) <= pageCount ? page + 1 : page,
+            Page = page,
+            PageSize = pageSize,
+            PrevPage = page > 1 ? page - 1 : 1,
+            TotalCount = count,
+            TotalPage = pageCount
+        });
     }
+
 
     [HttpPost]
     public async Task<ActionResult> Post(
@@ -145,7 +161,6 @@ public class ProductoController : ControllerBase
         [FromRoute]long id, 
         [FromBody] Producto producto)
     {
-        if(this.dataContext != null && this.dataContext.Produtos != null)
         {
             Producto? dbProducto = await this.dataContext.Produtos.FindAsync(id);
             if(dbProducto == null)
@@ -164,7 +179,6 @@ public class ProductoController : ControllerBase
             return Ok(dbProducto);
         }
 
-        return BadRequest("Error");
     }
 
     [HttpDelete("{id}")]
@@ -190,4 +204,15 @@ public class ProductoController : ControllerBase
     {
     }
 }
-    
+internal class DtoListProducto
+{
+    public bool HasNextPage { get; set; }
+    public bool HasPrevPage { get; set; }
+    public List<object> List { get; set; }
+    public int NextPage { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int PrevPage { get; set; }
+    public int TotalCount { get; set; }
+    public int TotalPage { get; set; }
+}
