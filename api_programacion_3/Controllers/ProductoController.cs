@@ -40,50 +40,43 @@ public class ProductoController : ControllerBase
         [FromQuery] DTOList dtoList)
     {
           
-            TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(id);
+        TipoProducto? tipoProducto = await this.dataContext.TipoProducto.FindAsync(id);
 
-            var  query = this.dataContext.Produtos.AsQueryable();
+        var query = this.dataContext.Produtos.AsQueryable();
 
-            if(!string.IsNullOrEmpty(dtoList.Query))
-            {
-                query = query.Where(producto => producto.Title.Contains(dtoList.Query));
-            }
+        if(!string.IsNullOrEmpty(dtoList.Query))
+        {
+            query = query.Where(producto => producto.Title.Contains(dtoList.Query));
+        }
 
-            if(!string.IsNullOrEmpty(dtoList.OrderBy))
-            {
-                query = query.OrderBy(producto => producto.Title);
-            }
-            int page = dtoList.Page != null ? dtoList.Page.Value : 1; 
-            int pageSize = dtoList.PageSize != null ? dtoList.PageSize.Value : 10;
+        if(!string.IsNullOrEmpty(dtoList.OrderBy))
+        {
+            query = query.OrderBy(producto => producto.Title);
+        }
 
-            var produtos = await query
+        int page = dtoList.Page != null ? dtoList.Page.Value : 1; 
+        int pageSize = dtoList.PageSize != null ? dtoList.PageSize.Value : 10;
+
+        var produtos = await query
+            .Include(product => product.Image)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-            /*List<Producto>  produtos = 
-                await this.dataContext.Produtos
-                    .Include(producto => producto.Image)
-                    .Include(producto => producto.TipoProducto)
-                    .Where(producto => producto.TipoProducto == tipoProducto)
-                    .ToListAsync();*/
+        List<DtoProducto> dtos = new List<DtoProducto>();
 
-            List<DtoProducto> dtos = new List<DtoProducto>();
-
-            foreach(Producto producto in produtos)
+        foreach(Producto producto in produtos)
+        {
+            dtos.Add(new DtoProducto 
             {
-                dtos.Add(new DtoProducto 
-                {
-                    Description = producto.Description,
-                    Id = producto.Id,
-                    Title = producto.Title,
-                    Price = producto.Price,
-                    Url = "/Image/" + (producto.Image != null ? producto.Image.Id.ToString() : ""),
-
-                });
-            }
+                Description = producto.Description,
+                Id = producto.Id,
+                Title = producto.Title,
+                Price = producto.Price,
+                Url =  "/Image/" + (producto.Image != null ? producto.Image.Id.ToString() : "")
+            });
+        }
         
-
         return Ok(dtos);
     }
 
